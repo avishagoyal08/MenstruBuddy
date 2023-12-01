@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-side {
+            flex: 2;
+            
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+            padding: 20px;
+            height: 680px;
+
+        }
+        .left-side .brand-text{
+            font-size: 20px;
+            padding-left: 22px;
+        }
+
+        .right-side {
+            flex: 1;
+            background-color: #A91B60;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quote-container {
+            width: 90%;
+            
+            text-align: left;
+            padding: 12px;
+        }
+
+        .quote {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .quote1 {
+            font-size: 29px;
+            margin-bottom: 20px;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-container a {
+            display: inline-block;
+            width: 180px;
+            height: 30px;
+            padding: 10px;
+            background-color: #ffffff;
+            color: #4c5270;
+            border: none;
+            cursor: pointer;
+            font-size: 21px;
+            margin-bottom: 40px;
+            text-decoration: none;
+            border-radius: 10%;
+        }
+
+        .btn-container a:hover {
+            background-color: #ddd;
+        }
+
+        .embraced-line {
+            color: #ffffff;
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        /* Static alternate for favicon */
+        .brand-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Left Side -->
+
+        <div id="anima-bg">
+        <div class="left-side">
+            <p class="brand-text">MenstruBuddy.</p>
+            <div class="quote-container">
+
+                <p class="quote">Embrace your flow</p>
+                <p class="quote1">MenstruBuddy - Your companion in the journey of menstrual care</p>
+            </div>
+        </div>
+    </div>
+
+        <!-- Right Side -->
+        <div class="right-side">
+            <!-- Text representation of "MenstruBuddy" -->
+           
+
+            <!-- Get Started Section -->
+            <p class="embraced-line">Get Started</p>
+            <div class="btn-container">
+                <a class="btn btn-light btn-lg" href="/login" role="button">Login</a>
+                <a class="btn btn-dark btn-lg" href="/register" role="button">Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.trunk.min.js"></script>
+    <script>
+    VANTA.TRUNK({
+      el: document.getElementById("anima-bg"),
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      backgroundColor: 0x131313
+    })
+    </script>
+</body>
+
+</html>

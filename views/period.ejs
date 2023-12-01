@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Period Tracker</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/css/period.css">
+
+</head>
+<body>
+    <h1>Period Tracker</h1>
+    <form>
+        <fieldset>
+            <legend>Enter your period details</legend>
+            <p>
+                Enter Start Date :
+                <input type="text" id="start_date" class="datepicker" />
+            </p>
+            <p>
+                Enter End Date :
+                <input type="text" id="end_date" class="datepicker" />
+            </p>
+            <p>
+                <label for="cycle">Average Length of Cycles (days)</label>
+                <input type="number" id="cycle" min="1" max="42" value="28">
+            </p>
+        </fieldset>
+    </form>
+
+    <p>
+        <button id="sub" type="button">Submit</button>
+    </p>
+    <h3 id="ans">Length of your periods (days)</h3>
+
+    <div class="calendar-container" id="calendar-container"></div>
+    <div class="legend">
+        <div class="legend-item">
+          <div class="period-dot period-red"></div>
+          <span>Menstrual Cycle</span>
+        </div>
+        <div class="legend-item">
+          <div class="period-dot period-purple"></div>
+          <span>Ovulation Period</span>
+        </div>
+      </div>
+    
+    <script>
+        function generateCalendar(targetId, year, month) {
+            const target = document.getElementById(targetId);
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+
+            const calendar = document.createElement("div");
+            calendar.classList.add("calendar");
+            calendar.setAttribute("data-year", year);
+            calendar.setAttribute("data-month", month);
+
+            const monthHeader = document.createElement("div");
+            monthHeader.classList.add("month");
+            monthHeader.textContent = new Date(year, month, 1).toLocaleString('default', { month: 'long' }) + " " + year;
+            calendar.appendChild(monthHeader);
+
+            const table = document.createElement("table");
+
+            // Create table header
+            const thead = table.createTHead();
+            const tr = thead.insertRow();
+            const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            daysOfWeek.forEach(day => {
+                const th = document.createElement("th");
+                th.textContent = day;
+                tr.appendChild(th);
+            });
+
+            // Create table cells for the month
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                const row = table.insertRow();
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay) {
+                        const cell = row.insertCell();
+                    } else if (date > daysInMonth) {
+                        break;
+                    } else {
+                        const cell = row.insertCell();
+                        cell.textContent = date;
+                        date++;
+                    }
+                }
+            }
+
+            calendar.appendChild(table);
+            target.appendChild(calendar);
+        }
+
+
+        function markOvulation(newStartDateObj, periodLength) {
+    // Calculate the ovulation start date
+    const ovulationStartDate = new Date(newStartDateObj);
+    ovulationStartDate.setDate(ovulationStartDate.getDate() - 14);
+
+    // Highlight the ovulation date
+    const ovulationYear = ovulationStartDate.getFullYear();
+    const ovulationMonth = ovulationStartDate.getMonth();
+    const ovulationDay = ovulationStartDate.getDate();
+
+    const ovulationCalendar = document.querySelector(`.calendar[data-year="${ovulationYear}"][data-month="${ovulationMonth}"]`);
+    if (ovulationCalendar) {
+        const firstDay = new Date(ovulationYear, ovulationMonth, 1).getDay();
+        const table = ovulationCalendar.querySelector("table");
+        const redCells = periodLength;
+        // Mark cells for ovulation
+        for (let i = 0; i < redCells; i++) {
+            const cellIndex = ovulationDay + firstDay + i;
+            const row = Math.floor(cellIndex / 7) + 1;
+            const col = cellIndex % 7;
+            const cell = table.rows[row].cells[col];
+            cell.classList.add("ovulation-date");
+        }
+    }
+}
+
+        function markDates(startDate, endDate, cycleLength) {
+            const startDateObj = new Date(startDate);
+            const endDateObj = new Date(endDate);
+
+            // Remove the previous highlighting
+            const allHighlightedDates = document.querySelectorAll(".highlighted-date");
+            allHighlightedDates.forEach(date => {
+                date.classList.remove("highlighted-date");
+            });
+
+            // Highlight the start date
+            const startYear = startDateObj.getFullYear();
+            const startMonth = startDateObj.getMonth();
+            const startDay = startDateObj.getDate();
+
+            const startCalendar = document.querySelector(`.calendar[data-year="${startYear}"][data-month="${startMonth}"]`);
+            if (startCalendar) {
+                const firstDay = new Date(startYear, startMonth, 1).getDay();
+                const cellIndex = startDay + firstDay - 1;
+                const table = startCalendar.querySelector("table");
+                const row = Math.floor(cellIndex / 7) + 1;
+                const col = cellIndex % 7;
+                const cell = table.rows[row].cells[col];
+                cell.classList.add("highlighted-date");
+            }
+
+            // Highlight the end date
+            const endYear = endDateObj.getFullYear();
+            const endMonth = endDateObj.getMonth();
+            const endDay = endDateObj.getDate();
+
+            const endCalendar = document.querySelector(`.calendar[data-year="${endYear}"][data-month="${endMonth}"]`);
+            if (endCalendar) {
+                const firstDay = new Date(endYear, endMonth, 1).getDay();
+                const cellIndex = endDay + firstDay - 1;
+                const table = endCalendar.querySelector("table");
+                const row = Math.floor(cellIndex / 7) + 1;
+                const col = cellIndex % 7;
+                const cell = table.rows[row].cells[col];
+                cell.classList.add("highlighted-date");
+            }
+
+            for (let year = startYear; year <= endYear; year++) {
+                for (let month = (year === startYear ? startMonth : 0); month <= (year === endYear ? endMonth : 11); month++) {
+                    const calendar = document.querySelector(`.calendar[data-year="${year}"][data-month="${month}"]`);
+                    if (calendar) {
+                        const firstDay = new Date(year, month, 1).getDay();
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        for (let date = 1; date <= daysInMonth; date++) {
+                            const cellDate = new Date(year, month, date);
+                            if (cellDate >= startDateObj && cellDate <= endDateObj) {
+                                // Highlight the date
+                                const cellIndex = date + firstDay - 2;
+                                const table = calendar.querySelector("table");
+                                const row = Math.floor(cellIndex / 7) + 1;
+                                const col = cellIndex % 7;
+                                const cell = table.rows[row].cells[col];
+                                cell.classList.add("highlighted-date");
+                            }
+                        }
+                    }
+                }
+            }
+            // Calculate the new start date based on the cycle length
+const newStartDateObj = new Date(startDateObj);
+newStartDateObj.setDate(newStartDateObj.getDate() + cycleLength);
+
+// Calculate the new end date based on the new start date and the original period length
+const newEndDateObj = new Date(newStartDateObj);
+newEndDateObj.setDate(newStartDateObj.getDate() + Math.abs(endDateObj - startDateObj) / (1000 * 60 * 60 * 24));
+
+// Highlight the new date range from one day before the new start date to the new end date
+const startDateMinusOneDay = new Date(newStartDateObj);
+startDateMinusOneDay.setDate(startDateMinusOneDay.getDate());
+
+for (let currentDate = startDateMinusOneDay; currentDate <= newEndDateObj; currentDate.setDate(currentDate.getDate() + 1)) {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const date = currentDate.getDate();
+
+    const calendar = document.querySelector(`.calendar[data-year="${year}"][data-month="${month}"]`);
+    if (calendar) {
+        const firstDay = new Date(year, month, 1).getDay();
+        const table = calendar.querySelector("table");
+        const cellIndex = date + firstDay - 1;
+        const row = Math.floor(cellIndex / 7) + 1;
+        const col = cellIndex % 7;
+        const cell = table.rows[row].cells[col];
+        cell.classList.add("highlighted-date");
+    }
+}
+
+
+
+            // Calculate the new start date based on the cycle length
+const newStartDateObj2 = new Date(newStartDateObj);
+newStartDateObj2.setDate(newStartDateObj2.getDate() + cycleLength);
+
+// Calculate the new end date based on the new start date and the original period length
+const newEndDateObj2 = new Date(newStartDateObj2);
+newEndDateObj2.setDate(newStartDateObj2.getDate() + Math.abs(newEndDateObj - newStartDateObj) / (1000 * 60 * 60 * 24));
+
+const endDatePlusOneDay = new Date(newEndDateObj2);
+endDatePlusOneDay.setDate(endDatePlusOneDay.getDate() + 1);
+
+// Highlight the new date range from the new start date to the new end date plus one day
+for (let year = newStartDateObj2.getFullYear(); year <= endDatePlusOneDay.getFullYear(); year++) {
+    for (let month = newStartDateObj2.getMonth(); month <= (year === endDatePlusOneDay.getFullYear() ? endDatePlusOneDay.getMonth() : 11); month++) {
+        const calendar = document.querySelector(`.calendar[data-year="${year}"][data-month="${month}"]`);
+        if (calendar) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            for (let date = 1; date <= daysInMonth; date++) {
+                const cellDate = new Date(year, month, date);
+                if (cellDate >= newStartDateObj2 && cellDate <= endDatePlusOneDay) {
+                    // Highlight the date
+                    const cellIndex = date + firstDay - 1;
+                    const table = calendar.querySelector("table");
+                    const row = Math.floor(cellIndex / 7) + 1;
+                    const col = cellIndex % 7;
+                    const cell = table.rows[row].cells[col];
+                    cell.classList.add("highlighted-date");
+                }
+            }
+        }
+    }
+}
+const newStartDateObj3 = new Date(newStartDateObj2);
+newStartDateObj3.setDate(newStartDateObj3.getDate() + cycleLength + 1);
+
+            const periodLength = Math.round(Math.abs((endDateObj - startDateObj) / (1000 * 60 * 60 * 24))) + 1;
+            document.getElementById("ans").innerHTML = "Length of your periods (days): " + periodLength;
+
+            markOvulation(newStartDateObj,periodLength);
+            markOvulation(newStartDateObj2,periodLength);
+            markOvulation(newStartDateObj3,periodLength);
+        }
+
+        $(document).ready(function () {
+            $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+        });
+
+        const calendarContainer = document.getElementById("calendar-container");
+        const startInput = document.getElementById("start_date");
+        const endInput = document.getElementById("end_date");
+        const cycleInput = document.getElementById("cycle");
+        const submitButton = document.getElementById("sub");
+
+        submitButton.addEventListener("click", () => {
+            markDates(startInput.value, endInput.value, parseInt(cycleInput.value));
+        });
+
+        const currentDate = new Date();
+        let currentYear = currentDate.getFullYear();
+        let currentMonth = currentDate.getMonth();
+
+        // Generate calendars for the current month and the next two months
+        for (let i = 0; i < 3; i++) {
+            generateCalendar("calendar-container", currentYear, currentMonth);
+            if (currentMonth === 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else {
+                currentMonth++;
+            }
+        }
+    </script>
+</body>
+</html>
